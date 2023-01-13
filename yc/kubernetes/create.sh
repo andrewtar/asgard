@@ -121,3 +121,5 @@ yc managed-kubernetes cluster get-credentials \
   "${cluster_name}" \
   --external \
   --force
+
+echo "The kubernetes cluster setup is finished."
