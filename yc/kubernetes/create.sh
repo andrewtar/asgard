@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Based on the instruction https://cloud.yandex.com/en-ru/docs/managed-kubernetes/tutorials/new-kubernetes-project.
+# This script is idempotent. 
+
 folder_id=$(yc config get folder-id)
 cluster_name='asgard'
 cluster_version='1.23' # yc managed-kubernetes list-versions
@@ -8,7 +11,6 @@ key_name='hofund'
 network_name='asgard-network'
 subnet_name='asgard-subnet'
 account_name='odin'
-
 
 accounts=($(yc iam service-account list --format json | jq -r '.[].name'))
 if [[ " ${accounts[*]} " =~ " ${account_name} " ]]; then
@@ -114,7 +116,6 @@ else
     --version "${cluster_version}"
   echo "Nodes ${cluster_nodes} created. OK."
 fi
-
 
 yc managed-kubernetes cluster get-credentials \
   "${cluster_name}" \
