@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: buildbarn
+spec:
+  selector:
+    app: frontend
+  type: ClusterIP
+  ports:
+  - name: grpc
+    port: 80
+    targetPort: grpc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: buildbarn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - args:
+        - /config/frontend.jsonnet
+        image: buildbarn/bb-storage:20220912T104841Z-b7137ec
+        name: storage
+        ports:
+        - name: grpc
+          containerPort: 8980
+          protocol: TCP
+        - name: diag
+          containerPort: 9980
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /config/
+          name: configs
+          readOnly: true
+        resources:
+          requests:
+            memory: "100M"
+            cpu: "10m"
+          limits:
+            memory: "300M"
+            cpu: "100m"
+      volumes:
+      - name: configs
+        projected:
+          sources:
+          - configMap:
+              name: frontend
+              items:
+              - key: frontend.jsonnet
+                path: frontend.jsonnet
+          - configMap:
+              name: common
+              items:
+              - key: common.libsonnet
+                path: common.libsonnet

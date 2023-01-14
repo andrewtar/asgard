@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-ubuntu22-04
+  namespace: buildbarn
+  annotations:
+    prometheus.io/port: "80"
+    prometheus.io/scrape: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+      instance: ubuntu22-04
+  template:
+    metadata:
+      labels:
+        app: worker
+        instance: ubuntu22-04
+    spec:
+      containers:
+      - args:
+        - /config/worker-ubuntu22-04.jsonnet
+        image: buildbarn/bb-worker:20220912T200427Z-e664853
+        name: worker
+        resources:
+          requests:
+            memory: "200M"
+            cpu: "30m"
+          limits:
+            memory: "400M"
+            cpu: "100m"
+        volumeMounts:
+        - mountPath: /config/
+          name: configs
+          readOnly: true
+        - mountPath: /worker
+          name: worker
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      - command: [/bb/tini, -v, -g, --, /bb/bb_runner, /config/runner-ubuntu22-04.jsonnet]
+        image: l.gcr.io/google/rbe-ubuntu16-04@sha256:f6568d8168b14aafd1b707019927a63c2d37113a03bcee188218f99bd0327ea1
+        name: runner
+        resources:
+          requests:
+            memory: "20M"
+            cpu: "30m"
+          limits:
+            memory: "100M"
+            cpu: "100m"
+        securityContext:
+          runAsUser: 65534
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /config/
+          name: configs
+          readOnly: true
+        - mountPath: /worker
+          name: worker
+        - mountPath: /bb
+          name: bb-runner
+          readOnly: true
+      initContainers:
+      - name: bb-runner-installer
+        image: buildbarn/bb-runner-installer:20220912T200427Z-e664853
+        volumeMounts:
+        - mountPath: /bb/
+          name: bb-runner
+      - name: volume-init
+        image: busybox:1.31.1-uclibc
+        command:
+        - sh
+        - -c
+        - mkdir -pm 0777 /worker/build && mkdir -pm 0700 /worker/cache && chmod 0777 /worker
+        volumeMounts:
+        - mountPath: /worker
+          name: worker
+      volumes:
+      - name: bb-runner
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: configs
+        projected:
+          sources:
+          - configMap:
+              name: runner-ubuntu22-04
+              items:
+              - key: runner-ubuntu22-04.jsonnet
+                path: runner-ubuntu22-04.jsonnet
+          - configMap:
+              name: worker-ubuntu22-04
+              items:
+              - key: worker-ubuntu22-04.jsonnet
+                path: worker-ubuntu22-04.jsonnet
+          - configMap:
+              name: common
+              items:
+              - key: common.libsonnet
+                path: common.libsonnet
+      - name: worker
+        emptyDir:
+          sizeLimit: 3G
