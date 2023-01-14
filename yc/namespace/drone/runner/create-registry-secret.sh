@@ -2,7 +2,7 @@
 
 set -e
 
-tmp_file="$(mktemp /tmp/service-accountkey.XXXXXX)"
+tmp_file="$(mktemp /tmp/service-account-key.XXXXXX)"
 
 yc iam key create \
   --description "Auth credentials to access the docker registry from the Drone CI" \
