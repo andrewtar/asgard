@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "telegram",
+    srcs = ["telegram_client.go"],
+    importpath = "asgard/common/api/telegram",
+    deps = [
+        "//lib/go/log",
+        "@com_github_go_telegram_bot_api//:go_default_library",
+    ],
+    visibility = ["//visibility:public"],
+)
