@@ -7,7 +7,6 @@ steps:
   pull: always
   commands:
   - bazel info
-  - sleep 3600
   - bazel build --config=remote-common --config=remote-ci //...
   - bazel test --config=remote-common --config=remote-ci //...
 
