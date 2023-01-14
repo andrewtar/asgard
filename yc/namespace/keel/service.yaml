@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keel
+  namespace: keel
+  labels:
+    app: keel
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 9300
+      protocol: TCP
+      name: keel
+  selector:
+    app: keel
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keel
+  namespace: keel
+  labels:
+    app: keel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keel
+  template:
+    metadata:
+      labels:
+        app: keel
+    spec:
+      serviceAccountName: keel
+      containers:
+        - name: keel
+          image: "keelhq/keel:latest@sha256:014a33d4d815d07612e210a05a23909443dd883d9dd6ac3265eeb06fcc8f4295"
+          imagePullPolicy: Always
+          command: ["/bin/keel"]
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: BASIC_AUTH_USER
+              value: andrew
+            - name: BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: admin-password
+          ports:
+            - containerPort: 9300
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9300
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          volumeMounts:
+          - mountPath: /data
+            name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
