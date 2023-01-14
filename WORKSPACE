@@ -85,7 +85,6 @@ go_repository(
     sha256 = "06e72b7166ec73e4ee6454e25d68abba7bf1e0beabebe09fe38b379b836dc976",
     strip_prefix = "sys-0.3.0",
     type = "zip",
-    # master, as of 2022-12-09
     urls = ["https://github.com/golang/sys/archive/refs/tags/v0.3.0.zip"],
 )
 

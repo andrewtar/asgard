@@ -1,0 +1,2 @@
+build --stamp
+build --workspace_status_command=$(pwd)/status_command.sh
