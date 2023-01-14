@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: drone
+spec:
+  selector:
+    app: server
+  ports:
+  - name: main
+    port: 80
+    targetPort: main
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: drone
+spec:
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: drone/drone:2.15.0@sha256:d3e29fa1e058d5ea81b05e17b62cde5eca190710a9f0afd21568901f9102a00b
+          env:
+            - name: DRONE_GITHUB_CLIENT_ID
+              value: ef5afd7976fcf95c5133
+            - name: DRONE_GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-secret
+                  key: secret
+            - name: DRONE_SERVER_HOST
+              value: https://drone.littlebit.space
+            - name: DRONE_SERVER_PROTO
+              value: https
+            - name: DRONE_RPC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: runner-secret
+                  key: secret
+            - name: DRONE_GIT_ALWAYS_AUTH
+              value: "true"
+            - name: DRONE_USER_CREATE
+              value: "username:andrewtar,admin:true"
+          ports:
+            - name: main
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "50M"
+              cpu: "5m"
+            limits:
+              memory: "100M"
+              cpu: "5m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: server-data
