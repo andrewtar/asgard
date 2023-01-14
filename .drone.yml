@@ -1,0 +1,75 @@
+kind: pipeline
+type: kubernetes
+name: Run CI/CD
+steps:
+- name: build
+  image: cr.yandex/crp1l4j9no209t82ra7l/bazel_runner:latest
+  pull: always
+  commands:
+  - bazel info
+  - bazel build --config=remote-common --config=remote-ci //...
+  - bazel test --config=remote-common --config=remote-ci //...
+
+- name: publish
+  image: cr.yandex/crp1l4j9no209t82ra7l/bazel_runner:latest
+  environment:
+    DOCKER_REGISTRY_TOKEN:
+      from_secret: DOCKER_REGISTRY_TOKEN
+  pull: always
+  commands:
+  - mkdir -p ~/.docker/
+  - echo -n $DOCKER_REGISTRY_TOKEN | base64 -d > ~/.docker/config.json
+  - bazel run --config=remote-common --config=remote-ci //cmd:push
+  when:
+    branch:
+    - master
+
+- name: deploy
+  image: cr.yandex/crp1l4j9no209t82ra7l/bazel_runner:latest
+  pull: always
+  commands:
+  - >
+    curl -X POST http://keel.keel.svc.cluster.local:80/v1/webhooks/native \
+      -H 'Content-Type: application/json' \
+      -d '{"name": "cr.yandex/crp1l4j9no209t82ra7l/boredbot", "tag": "latest"}'
+  when:
+    branch:
+    - master
+
+trigger:
+  event:
+  - push
+
+---
+kind: pipeline
+type: kubernetes
+name: Release CI image
+steps:
+- name: build and push
+  image: moby/buildkit:v0.10.6-rootless@sha256:af44d4fe353f26a8b79bf09fd1897459a529ac2f2a7bea769c2da10e50d87176
+  environment:
+    DOCKER_REGISTRY_TOKEN:
+      from_secret: DOCKER_REGISTRY_TOKEN
+  commands:
+  - mkdir -p ~/.docker/
+  - echo -n $DOCKER_REGISTRY_TOKEN | base64 -d > ~/.docker/config.json
+  - >
+    buildctl
+    --addr tcp://server.buildkit.svc.cluster.local:80
+    build
+    --output type=image,name=cr.yandex/crp1l4j9no209t82ra7l/bazel_runner:latest,push=true
+    --frontend dockerfile.v0
+    --local context=.
+    --local dockerfile=ci
+    --opt filename=build.Dockerfile
+  when:
+    event:
+    - promote
+    target:
+    - production
+
+trigger:
+  event:
+  - promote
+  target:
+  - production
