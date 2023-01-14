@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: runner
+  namespace: drone
+spec:
+  selector:
+    matchLabels:
+      name: runner
+  template:
+    metadata:
+      labels:
+        name: runner
+    spec:
+      containers:
+      - name: runner
+        image: drone/drone-runner-kube:linux-amd64@sha256:003848908e19a23b8f3eb97c763cc634e48826517c587d526707e0668feb22b7
+        env:
+        - name: DRONE_RPC_HOST
+          value: server:80
+        - name: DRONE_RPC_PROTO
+          value: http
+        - name: DRONE_RPC_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: runner-secret
+              key: secret
+        - name: DRONE_NAMESPACE_DEFAULT
+          value: drone
+        - name: DRONE_DOCKER_CONFIG
+          value: /root/.docker/.dockerconfigjson
+        - name: DRONE_RESOURCE_REQUEST_CPU
+          value: "100"
+        - name: DRONE_RESOURCE_REQUEST_MEMORY
+          value: "200MiB"
+        - name: DRONE_RESOURCE_LIMIT_CPU
+          value: "1000"
+        - name: DRONE_RESOURCE_LIMIT_MEMORY
+          value: "1.5G"
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: secret
+          mountPath: "/root/.docker/"
+          readOnly: true
+        resources:
+          requests:
+            memory: "40M"
+            cpu: "5m"
+          limits:
+            memory: "80M"
+            cpu: "5m"
+      serviceAccountName: drone
+      volumes:
+        - name: secret
+          secret:
+            secretName: docker-pull-credentials
