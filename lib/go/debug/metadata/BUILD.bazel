@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "metadata",
+    srcs = ["metadata.go"],
+    importpath = "asgard/common/debug/metadata",
+    x_defs = {
+        "Version": "{STABLE_GIT_COMMIT}",
+        "BuildTime": "{BUILD_TIME}",
+    },
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "metadata_test",
+    srcs = ["metadata_test.go"],
+    embed = [":metadata"],
+    x_defs = {
+        "Version": "0.9",
+        "BuildTime": "Sun, 11 Dec 2022 18:42:01 +0000",
+    },
+    deps = [
+        "@com_github_stretchr_testify//assert:go_default_library",
+    ],
+    visibility = ["//visibility:private"],
+)

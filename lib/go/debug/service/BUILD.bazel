@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "service",
+    srcs = ["debug_service.go"],
+    importpath = "asgard/common/debug/service",
+    deps = [
+        "//lib/go/debug/metadata",
+        "//lib/go/log",
+    ],
+    visibility = ["//visibility:public"],
+)

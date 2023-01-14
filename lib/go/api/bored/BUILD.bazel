@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bored",
+    srcs = ["bored_client.go"],
+    importpath = "asgard/common/api/bored",
+    deps = [
+        "@com_github_go_telegram_bot_api//:go_default_library",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "bored_test",
+    srcs = ["bored_client_test.go"],
+    embed = [":bored"],
+    deps = [
+        "@com_github_stretchr_testify//assert:go_default_library",
+    ],
+    visibility = ["//visibility:private"],
+)
