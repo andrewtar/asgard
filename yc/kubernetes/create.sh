@@ -11,6 +11,7 @@ key_name='hofund'
 network_name='asgard-network'
 subnet_name='asgard-subnet'
 account_name='odin'
+zone='ru-central1-a'
 
 accounts=($(yc iam service-account list --format json | jq -r '.[].name'))
 if [[ " ${accounts[*]} " =~ " ${account_name} " ]]; then
@@ -83,7 +84,7 @@ else
     --description 'My kubernetes cluster' \
     --network-name "${network_name}" \
     --subnet-name "${subnet_name}" \
-    --zone 'ru-central1-a' \
+    --zone "${zone}" \
     --cluster-ipv4-range '10.0.0.0/16' \
     --service-ipv4-range '172.16.0.0/16' \
     --release-channel 'regular' \
@@ -108,11 +109,11 @@ else
     --memory '16GB' \
     --cores 4 \
     --core-fraction 50 \
-    --anytime-maintenance-window \
     --disk-size '50GB' \
     --disk-type 'network-hdd' \
+    --anytime-maintenance-window \
     --fixed-size 1 \
-    --location "subnet-name=${subnet_name},zone=ru-central1-a" \
+    --network-interface "subnets=[${subnet_name}],ipv4-address=nat" \
     --version "${cluster_version}"
   echo "Nodes ${cluster_nodes} created. OK."
 fi
