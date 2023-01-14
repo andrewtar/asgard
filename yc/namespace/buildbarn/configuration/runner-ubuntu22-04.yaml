@@ -1,0 +1,16 @@
+apiVersion: v1
+data:
+  runner-ubuntu22-04.jsonnet: |
+    local common = import 'common.libsonnet';
+    {
+      buildDirectoryPath: '/worker/build',
+      # global: common.global,
+      grpcServers: [{
+        listenPaths: ['/worker/runner'],
+        authenticationPolicy: { allow: {} },
+      }],
+    }
+kind: ConfigMap
+metadata:
+  name: runner-ubuntu22-04
+  namespace: buildbarn
