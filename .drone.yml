@@ -19,7 +19,7 @@ steps:
   commands:
   - mkdir -p ~/.docker/
   - echo -n $DOCKER_REGISTRY_TOKEN | base64 -d > ~/.docker/config.json
-  - bazel run --config=remote-common --config=remote-ci //cmd:push
+  - bazel run --config=remote-common --config=remote-ci //app/boredbot/cmd
   when:
     branch:
     - master
