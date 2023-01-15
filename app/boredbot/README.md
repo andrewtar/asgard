@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Translate bot answers
 
 For translation we will use [Yandex Translate API](https://cloud.yandex.com/en-ru/services/translate). Every answer from the Bored API will be translated `en->ru` before returning it to Telegram. Requests to the Translate API will be made on behalf of the special service account. To avoid high costs for the `Translate API`, the number of translations will be limited to 100 per hour.
