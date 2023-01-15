@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Translate bot answers
 
 For translation we will use [Yandex Translate API](https://cloud.yandex.com/en-ru/services/translate). Every answer from the Bored API will be translated `en->ru` before returning it to Telegram. Requests to the Translate API will be made on behalf of the special service account. To avoid high costs for the `Translate API`, the number of translations will be limited to 100 per hour.
@@ -6,21 +7,14 @@ Base instruction is here https://cloud.yandex.ru/docs/translate/api-ref/authenti
 
 ## Prepare the service account
 Create a serivce account `dronebot`.
-```bash
-yc iam service-account create \
-  --name boredbot \
-  --description 'Allows the boredbot application to access the Yandex API'
-```
+# Create acess token for bot to transalte text via Yandex Translate. 
+Base instruction is here https://cloud.yandex.ru/docs/translate/api-ref/authentication and https://cloud.yandex.ru/docs/iam/operations/iam-token/create-for-sa#via-jwt. We choose approach with exchanging the JWT token to IAM-token and using the last in request to API.
+
+## Alghorithm
+1. Create a serivce account `dronebot`.
 
 Assign the required role to this account.
-```bash
-folder_id=$(yc config get folder-id)
-account_id=$(yc iam service-account get --name 'boredbot' --format json | jq .id -r)
-yc resource-manager folder add-access-binding \
-  --id "${folder_id}" \
-  --role 'ai.translate.user' \
-  --subject "serviceAccount:${account_id}"
-```
+2. Asign role for this account.
 
 Get `auth_key` for that account.
 ```bash
