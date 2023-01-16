@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "auth",
+    srcs = ["iam.go"],
+    importpath = "asgard/common/api/yandex-cloud/auth",
+    deps = [
+        "@com_github_golang_jwt_jwt//:go_default_library",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "auth_test",
+    srcs = ["iam_test.go"],
+    embed = [":auth"],
+    deps = [
+        "@com_github_stretchr_testify//assert:go_default_library",
+    ],
+    visibility = ["//visibility:private"],
+)

@@ -88,6 +88,15 @@ go_repository(
     urls = ["https://github.com/golang/sys/archive/refs/tags/v0.3.0.zip"],
 )
 
+go_repository(
+    name = "com_github_golang_jwt_jwt",
+    importpath = "github.com/golang-jwt/jwt/v4",
+    sha256 = "572c3adef54ab0dc9e2cf8f1b92865ea1d44a4301db73953a5c3e95c42f05087",
+    strip_prefix = "jwt-4.4.3",
+    type = "zip",
+    urls = ["https://github.com/golang-jwt/jwt/archive/refs/tags/v4.4.3.zip"],
+)
+
 # rules_docker
 # 0.23 breaks something around cc toolchains
 http_archive(
