@@ -6,14 +6,21 @@ Base instruction is here https://cloud.yandex.ru/docs/translate/api-ref/authenti
 
 ## Prepare the service account
 Create a serivce account `dronebot`.
-# Create acess token for bot to transalte text via Yandex Translate. 
-Base instruction is here https://cloud.yandex.ru/docs/translate/api-ref/authentication and https://cloud.yandex.ru/docs/iam/operations/iam-token/create-for-sa#via-jwt. We choose approach with exchanging the JWT token to IAM-token and using the last in request to API.
-
-## Alghorithm
-1. Create a serivce account `dronebot`.
+```bash
+yc iam service-account create \
+  --name boredbot \
+  --description 'Allows the boredbot application to access the Yandex API'
+```
 
 Assign the required role to this account.
-2. Asign role for this account.
+```bash
+folder_id=$(yc config get folder-id)
+account_id=$(yc iam service-account get --name 'boredbot' --format json | jq .id -r)
+yc resource-manager folder add-access-binding \
+  --id "${folder_id}" \
+  --role 'ai.translate.user' \
+  --subject "serviceAccount:${account_id}"
+```
 
 Get `auth_key` for that account.
 ```bash
