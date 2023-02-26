@@ -9,14 +9,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-const (
-	tokenExchangeUrl = "https://iam.api.cloud.yandex.net/iam/v1/tokens"
+var serviceAccountKey = flag.String("yandex-cloud-service-account-key", "", "Yandex Cloud service account key")
+var tokenExchangeUrl = flag.String(
+	"yandex-cloud-token-url",
+	"https://iam.api.cloud.yandex.net/iam/v1/tokens",
+	"Yandex Cloud token exchange url",
 )
-
-var serviceAccountKey = flag.String("yandex-cloud-service-account-key", "", "Telegram API endpoint")
 
 type servicekey struct {
 	KeyId           string `json:"id"`
@@ -44,7 +45,7 @@ type YandexCloudAuthService struct {
 
 func (YandexCloudAuthService) GetIamToken() (IAMToken, error) {
 	if *serviceAccountKey == "" {
-		return IAMToken{}, fmt.Errorf("service account key cannot be null")
+		return IAMToken{}, fmt.Errorf("service account key cannot be empty")
 	}
 
 	parsedKey, err := parseKey(*serviceAccountKey)
@@ -80,6 +81,7 @@ func parseKey(key string) (servicekey, error) {
 }
 
 func generateJWTToken(key servicekey) (string, error) {
+	now := time.Now()
 	token := &jwt.Token{
 		Method: jwt.SigningMethodPS256,
 		Header: map[string]interface{}{
@@ -88,10 +90,10 @@ func generateJWTToken(key servicekey) (string, error) {
 			"kid": key.KeyId,
 		},
 		Claims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(now.Add(1 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
 			Issuer:    key.ServiceAcountId,
-			Audience:  []string{tokenExchangeUrl},
+			Audience:  []string{*tokenExchangeUrl},
 		},
 	}
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(key.PrivateKey))
@@ -110,7 +112,7 @@ func exchangeJwtOnIam(jwtToken string) (jwtExchangeResponse, error) {
 	if err != nil {
 		return jwtExchangeResponse{}, fmt.Errorf("failed to serialize jwt token for request: %w", err)
 	}
-	request, err := http.NewRequest(http.MethodPost, tokenExchangeUrl, bytes.NewBuffer(serializeJson))
+	request, err := http.NewRequest(http.MethodPost, *tokenExchangeUrl, bytes.NewBuffer(serializeJson))
 	if err != nil {
 		return jwtExchangeResponse{}, fmt.Errorf("failed to prepare request: %w", err)
 	}
