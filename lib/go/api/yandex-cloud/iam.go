@@ -128,6 +128,10 @@ func exchangeJwtOnIam(jwtToken string) (jwtExchangeResponse, error) {
 	}
 	response.Body.Close()
 
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		return jwtExchangeResponse{}, fmt.Errorf("received %d error code and message %s", response.StatusCode, string(body))
+	}
+
 	parsedResponse := jwtExchangeResponse{}
 	err = json.Unmarshal(body, &parsedResponse)
 	if err != nil {

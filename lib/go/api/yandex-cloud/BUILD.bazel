@@ -15,7 +15,7 @@ go_test(
     srcs = ["iam_test.go"],
     embed = [":auth"],
     data = [
-        "//lib/go/api/yandex-cloud/auth:test_key",
+        "//lib/go/api/yandex-cloud:test_key",
     ],
     deps = [
         "@com_github_stretchr_testify//suite:go_default_library",
@@ -29,7 +29,7 @@ filegroup(
     name = "test_key",
     testonly = True,
     srcs = glob(
-        ["test_key.json"],
+        ["testdata/test_key.json"],
     ),
     visibility = ["//visibility:private"],
 )
