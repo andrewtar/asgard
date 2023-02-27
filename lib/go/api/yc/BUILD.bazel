@@ -1,9 +1,9 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "auth",
+    name = "yc",
     srcs = ["iam.go"],
-    importpath = "asgard/common/api/yandex-cloud/auth",
+    importpath = "asgard/common/api/yc",
     deps = [
         "@com_github_golang_jwt_jwt//:go_default_library",
     ],
@@ -11,11 +11,11 @@ go_library(
 )
 
 go_test(
-    name = "auth_test",
+    name = "yc_test",
     srcs = ["iam_test.go"],
-    embed = [":auth"],
+    embed = [":yc"],
     data = [
-        "//lib/go/api/yandex-cloud:test_key",
+        "//lib/go/api/yc:test_key",
     ],
     deps = [
         "@com_github_stretchr_testify//suite:go_default_library",

@@ -32,7 +32,6 @@ var (
 
 type IamTestSuite struct {
 	suite.Suite
-	service          YandexCloudAuthService
 	publicKey        []byte
 	serviceAccountId string
 	timePatch        *monkey.PatchGuard
@@ -73,7 +72,7 @@ func (self *IamTestSuite) TestGetIamToken() {
 	defer testTokenExchangeServer.Close()
 	*tokenExchangeUrl = testTokenExchangeServer.URL
 
-	token, err := self.service.GetIamToken()
+	token, err := GetIamToken()
 	self.Nil(err)
 	self.Equal(testIamToken, token)
 }
@@ -81,14 +80,14 @@ func (self *IamTestSuite) TestGetIamToken() {
 func (self *IamTestSuite) TestGetIamTokenReturnErrorIfNoToken() {
 	self.setupServiceAccountKey("")
 
-	_, err := self.service.GetIamToken()
+	_, err := GetIamToken()
 	self.Contains(err.Error(), "service account key cannot be empty")
 }
 
 func (self *IamTestSuite) TestGetIamTokenReturnErrorIfInvalidToken() {
 	self.setupServiceAccountKey("invalid_key")
 
-	_, err := self.service.GetIamToken()
+	_, err := GetIamToken()
 	self.Contains(err.Error(), "failed to parse service key")
 }
 
@@ -102,7 +101,7 @@ func (self *IamTestSuite) TestGetIamTokenReturnErrorIfInvalidPrivateKey() {
 		"private_key":        "invalid_private_key",
 	})))
 
-	_, err := self.service.GetIamToken()
+	_, err := GetIamToken()
 	self.Contains(err.Error(), "failed to parse private key")
 }
 
@@ -127,7 +126,7 @@ func (self *IamTestSuite) TestGetIamTokenReturnErrorIfReceivedHttpErrorDuringExc
 	defer testTokenExchangeServer.Close()
 	*tokenExchangeUrl = testTokenExchangeServer.URL
 
-	_, err := self.service.GetIamToken()
+	_, err := GetIamToken()
 	self.Contains(err.Error(), "failed to exchange JWT on IAM token")
 	self.Contains(err.Error(), fmt.Sprint(http.StatusInternalServerError))
 	self.Contains(err.Error(), "test_server_error")

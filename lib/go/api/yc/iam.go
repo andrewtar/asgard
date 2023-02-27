@@ -40,10 +40,7 @@ type IAMToken struct {
 	ExpiresAt time.Time
 }
 
-type YandexCloudAuthService struct {
-}
-
-func (YandexCloudAuthService) GetIamToken() (IAMToken, error) {
+func GetIamToken() (IAMToken, error) {
 	if *serviceAccountKey == "" {
 		return IAMToken{}, fmt.Errorf("service account key cannot be empty")
 	}
@@ -62,8 +59,6 @@ func (YandexCloudAuthService) GetIamToken() (IAMToken, error) {
 	if err != nil {
 		return IAMToken{}, fmt.Errorf("failed to exchange JWT on IAM token: %w", err)
 	}
-	// 2006-01-02T15:04:05.999999999Z07:00
-	// expiresAt, err := time.Parse(iamResponse.ExpiresAt, "2006-01-02T15:04:05.999999999Z07:00")
 	expiresAt, err := time.Parse(time.RFC3339Nano, iamResponse.ExpiresAt)
 	if err != nil {
 		return IAMToken{}, fmt.Errorf("failed to calculate expiration time of the IAM token: %w", err)
