@@ -40,6 +40,7 @@ type IAMToken struct {
 	ExpiresAt time.Time
 }
 
+// Returns the IAMToken exchanged from the service account key.
 func GetIamToken() (IAMToken, error) {
 	if *serviceAccountKey == "" {
 		return IAMToken{}, fmt.Errorf("service account key cannot be empty")
