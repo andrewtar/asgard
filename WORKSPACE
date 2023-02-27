@@ -88,6 +88,24 @@ go_repository(
     urls = ["https://github.com/golang/sys/archive/refs/tags/v0.3.0.zip"],
 )
 
+go_repository(
+    name = "com_github_golang_jwt_jwt",
+    importpath = "github.com/golang-jwt/jwt/v5",
+    sha256 = "c17a707285785461fbd72bb32140d54025d3d8cccf8a925d6e4baae627ef5370",
+    strip_prefix = "jwt-4.5.0",
+    type = "zip",
+    urls = ["https://github.com/golang-jwt/jwt/archive/refs/tags/v4.5.0.zip"],
+)
+
+go_repository(
+    name = "ke_bou_monkey",
+    importpath = "bou.ke/monkey",
+    sha256 = "012a60a6e4034195654e3d25a7456d172f77564e1a95e44e1e4e909570f0432b",
+    strip_prefix = "monkey-1.0.2",
+    type = "zip",
+    urls = ["https://github.com/bouk/monkey/archive/refs/tags/v1.0.2.zip"],
+)
+
 # rules_docker
 # 0.23 breaks something around cc toolchains
 http_archive(

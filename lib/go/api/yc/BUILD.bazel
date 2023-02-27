@@ -1,0 +1,40 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "yc",
+    srcs = ["iam.go"],
+    importpath = "asgard/common/api/yc",
+    deps = [
+        "@com_github_golang_jwt_jwt//:go_default_library",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "yc_test",
+    srcs = ["iam_test.go"],
+    embed = [":yc"],
+    data = [
+        "//lib/go/api/yc:test_key",
+    ],
+    deps = [
+        "@com_github_stretchr_testify//suite:go_default_library",
+        "@com_github_golang_jwt_jwt//:go_default_library",
+        "@ke_bou_monkey//:go_default_library"
+    ],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "test_key",
+    testonly = True,
+    srcs = glob(
+        # How to generate:
+        # 1. openssl genrsa -out private.pem 2048
+        # 2. openssl rsa -in private.pem -outform PEM -pubout -out public.pem
+        # 3. cat private.pem | sed ':a;N;$!ba;s/\n/\\n/g'
+        # 4. cat public.pem | sed ':a;N;$!ba;s/\n/\\n/g'
+        ["testdata/test_key.json"],
+    ),
+    visibility = ["//visibility:private"],
+)
