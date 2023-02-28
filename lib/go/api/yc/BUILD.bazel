@@ -2,7 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "yc",
-    srcs = ["iam.go"],
+    srcs = [
+        "client.go",
+        "iam.go"
+    ],
     importpath = "asgard/common/api/yc",
     deps = [
         "@com_github_golang_jwt_jwt//:go_default_library",
@@ -12,7 +15,10 @@ go_library(
 
 go_test(
     name = "yc_test",
-    srcs = ["iam_test.go"],
+    srcs = [
+        "client_test.go",
+        # "iam_test.go",
+    ],
     embed = [":yc"],
     data = [
         "//lib/go/api/yc:test_key",
