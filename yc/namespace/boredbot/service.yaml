@@ -18,13 +18,17 @@ spec:
         - name: backend
           image: cr.yandex/crp1l4j9no209t82ra7l/boredbot:latest
           imagePullPolicy: Always
-          args: ["--debug"]
+          args: ["--debug", "--yandex-cloud-service-account-key-file-path", "/keys/yc-sa-key"]
           env:
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: bot-secret
                   key: secret
+          volumeMounts:
+            - mountPath: /keys
+              name: service-account-key
+              readOnly: true
           resources:
             requests:
               memory: "30M"
@@ -32,3 +36,7 @@ spec:
             limits:
               memory: "50M"
               cpu: "150m"
+      volumes:
+        - name: service-account-key
+          secret:
+            secretName: service-account-key
