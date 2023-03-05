@@ -3,13 +3,12 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	"asgard/app/boredbot/cmd"
 	"asgard/common/api/bored"
 	"asgard/common/api/telegram"
-	"asgard/common/debug/metadata"
 	debug "asgard/common/debug/service"
 	"asgard/common/log"
 )
@@ -22,40 +21,6 @@ type Command interface {
 	Handle() (string, error)
 }
 
-type haveFunCommand struct {
-	boredClient bored.BoredClient
-}
-
-func (haveFunCommand) GetDescription() string {
-	return "Get an idea for fun"
-}
-
-func (haveFunCommand) GetId() string {
-	return "have_fun"
-}
-
-func (self haveFunCommand) Handle() (string, error) {
-	activity, err := self.boredClient.GetActivity()
-	if err != nil {
-		return "", fmt.Errorf("failed to get activity: %w", err)
-	}
-	return activity.Activity, nil
-}
-
-type getInformationCommand struct{}
-
-func (getInformationCommand) GetDescription() string {
-	return "Get information about bot"
-}
-
-func (getInformationCommand) GetId() string {
-	return "info"
-}
-
-func (getInformationCommand) Handle() (string, error) {
-	return fmt.Sprintf("Version: %s\nBuild Time: %s", metadata.Version, metadata.BuildTime), nil
-}
-
 func main() {
 	flag.Parse()
 	debug.Init()
@@ -63,9 +28,9 @@ func main() {
 	bot := telegram.CreateBot()
 
 	commandsTable := registerCommands(bot, []Command{
-		getInformationCommand{},
-		haveFunCommand{
-			boredClient: bored.NewBoredClient(*debugFlag),
+		cmd.GetInformationCommand{},
+		cmd.HaveFunCommand{
+			BoredClient: bored.NewBoredClient(*debugFlag),
 		},
 	})
 
