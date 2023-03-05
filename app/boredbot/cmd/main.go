@@ -9,6 +9,7 @@ import (
 	"asgard/app/boredbot/cmd"
 	"asgard/common/api/bored"
 	"asgard/common/api/telegram"
+	"asgard/common/api/yc"
 	debug "asgard/common/debug/service"
 	"asgard/common/log"
 )
@@ -30,7 +31,8 @@ func main() {
 	commandsTable := registerCommands(bot, []Command{
 		cmd.GetInformationCommand{},
 		cmd.HaveFunCommand{
-			BoredClient: bored.NewBoredClient(*debugFlag),
+			BoredClient:       bored.NewBoredClient(*debugFlag),
+			TransaltionClient: yc.NewClient(),
 		},
 	})
 

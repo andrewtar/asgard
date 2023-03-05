@@ -12,7 +12,9 @@ go_library(
     ],
     deps = [
         "//lib/go/api/bored",
+        "//lib/go/api/yc",
         "//lib/go/debug/metadata",
+        "//lib/go/log",
     ],
     importpath = "asgard/app/boredbot/cmd",
     visibility = ["//visibility:private"],
@@ -23,7 +25,9 @@ go_test(
     srcs = ["command_test.go"],
     embed = [":lib"],
     deps = [
+        "//lib/go/api/yc",
         "//lib/go/debug/metadata",
+        "@com_github_stretchr_testify//assert:go_default_library",
         "@com_github_stretchr_testify//suite:go_default_library",        
     ],
     visibility = ["//visibility:private"],
@@ -35,6 +39,7 @@ go_binary(
     deps = [
         ":lib",
         "//lib/go/api/bored",
+        "//lib/go/api/yc",
         "//lib/go/api/telegram",
         "//lib/go/debug/service",
         "//lib/go/log",
