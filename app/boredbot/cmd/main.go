@@ -15,20 +15,24 @@ import (
 
 var debugFlag = flag.Bool("debug", false, "Print debug logs")
 
+type Command interface {
+	GetDescription() string
+	GetId() string
+	Handle() (string, error)
+}
+
 func main() {
 	flag.Parse()
 	debug.Init()
 
 	bot := telegram.CreateBot()
-	boredClient := bored.NewBoredClient(*debugFlag)
 
-	commandsTable, err := cmd.GetCommands(boredClient)
-	if err != nil {
-		log.Logger().
-			WithError(err).
-			Panic("Failed to init commands")
-	}
-	registerCommands(bot, commandsTable)
+	commandsTable := registerCommands(bot, []Command{
+		cmd.GetInformationCommand{},
+		cmd.HaveFunCommand{
+			BoredClient: bored.NewBoredClient(*debugFlag),
+		},
+	})
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -98,7 +102,18 @@ func main() {
 	}
 }
 
-func registerCommands(bot *tgbotapi.BotAPI, commandsTable map[string]cmd.Command) {
+func registerCommands(bot *tgbotapi.BotAPI, commands []Command) map[string]Command {
+	commandsTable := map[string]Command{}
+	for _, command := range commands {
+		_, alreadyExists := commandsTable[command.GetId()]
+		if alreadyExists {
+			log.Logger().
+				WithField("command", command.GetId()).
+				Panic("Command already defined")
+		}
+		commandsTable[command.GetId()] = command
+	}
+
 	commandRegisterRequest := []tgbotapi.BotCommand{}
 	for id, command := range commandsTable {
 		commandRegisterRequest = append(commandRegisterRequest, tgbotapi.BotCommand{
@@ -115,4 +130,5 @@ func registerCommands(bot *tgbotapi.BotAPI, commandsTable map[string]cmd.Command
 			WithError(err).
 			Panic("Failed to register commands in Telegram API")
 	}
+	return commandsTable
 }
