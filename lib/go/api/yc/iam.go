@@ -41,7 +41,7 @@ type IAMToken struct {
 }
 
 func (self IAMToken) timeRefresh() bool {
-	return false
+	return time.Now().After(self.ExpiresAt.Add(-30 * time.Minute))
 }
 
 // Returns the IAMToken exchanged from the service account key.

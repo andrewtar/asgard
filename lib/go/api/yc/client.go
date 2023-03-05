@@ -3,10 +3,17 @@ package yc
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sync"
+)
+
+var translationUrl = flag.String(
+	"translation-api-url",
+	"https://translate.api.cloud.yandex.net/translate/v2/translate",
+	"Yandex Cloud token exchange url",
 )
 
 type YCCloud struct {
@@ -17,8 +24,6 @@ type YCCloud struct {
 type Language int
 
 const (
-	translationUrl = "https://translate.api.cloud.yandex.net/translate/v2/translate"
-
 	Russian Language = iota
 	English
 )
@@ -49,7 +54,7 @@ type translationResponse struct {
 }
 
 func (self *YCCloud) Translate(from, to Language, text string) (string, error) {
-	responseData, err := self.makePostApiCall(translationUrl, translationRequest{
+	responseData, err := self.makePostApiCall(*translationUrl, translationRequest{
 		SourceLanguageCode: from.String(),
 		TargetLanguageCode: to.String(),
 		Format:             "PLAIN_TEXT",
@@ -74,7 +79,7 @@ func (self *YCCloud) checkTokenOrRefresh() (string, error) {
 	if self.token == nil || self.token.timeRefresh() {
 		token, err := GetIamToken()
 		if err != nil {
-			return "", fmt.Errorf("failed to refresh token %w", err)
+			return "", fmt.Errorf("failed to request a new token: %w", err)
 		}
 		self.token = &token
 	}
@@ -83,6 +88,11 @@ func (self *YCCloud) checkTokenOrRefresh() (string, error) {
 }
 
 func (self *YCCloud) makePostApiCall(url string, requestBody interface{}) ([]byte, error) {
+	token, err := self.checkTokenOrRefresh()
+	if err != nil {
+		return nil, fmt.Errorf("failed to refresh token: %w", err)
+	}
+
 	serializeJson, err := json.Marshal(requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json body: %w", err)
@@ -92,10 +102,6 @@ func (self *YCCloud) makePostApiCall(url string, requestBody interface{}) ([]byt
 		return nil, fmt.Errorf("failed to prepare request: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
-	token, err := self.checkTokenOrRefresh()
-	if err != nil {
-		return nil, fmt.Errorf("failed to refresh token: %w", err)
-	}
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {

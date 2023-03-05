@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "test",
+    testonly = True,
+    srcs = [
+        "suite.go",
+    ],
+    importpath = "asgard/common/test",
+    deps = [
+        "@com_github_stretchr_testify//suite:go_default_library",
+        "@ke_bou_monkey//:go_default_library"
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -4,7 +4,7 @@ go_library(
     name = "yc",
     srcs = [
         "client.go",
-        "iam.go"
+        "iam.go",
     ],
     importpath = "asgard/common/api/yc",
     deps = [
@@ -17,15 +17,17 @@ go_test(
     name = "yc_test",
     srcs = [
         "client_test.go",
-        # "iam_test.go",
+        "iam_test.go",
+        "common_test.go",
     ],
     embed = [":yc"],
     data = [
         "//lib/go/api/yc:test_key",
     ],
     deps = [
-        "@com_github_stretchr_testify//suite:go_default_library",
+        "//lib/go/test",
         "@com_github_golang_jwt_jwt//:go_default_library",
+        "@com_github_stretchr_testify//suite:go_default_library",
         "@ke_bou_monkey//:go_default_library"
     ],
     visibility = ["//visibility:private"],
