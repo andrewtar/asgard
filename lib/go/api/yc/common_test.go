@@ -31,10 +31,7 @@ type YcCommonTestSuite struct {
 
 func (self *YcCommonTestSuite) SetupTest() {
 	self.timePatch = self.SetupTime(testNowTime)
-	setupServiceAccountKey(self.ReadFile("testdata/test_key.json"))
-
-	parsedKey := map[string]string{}
-	self.Nil(json.Unmarshal([]byte(*serviceAccountKey), &parsedKey))
+	parsedKey := self.setupServiceAccountKey("testdata/test_key.json")
 
 	self.publicKey = []byte(parsedKey["public_key"])
 	self.serviceAccountId = parsedKey["service_account_id"]
@@ -132,6 +129,10 @@ func (self *YcCommonTestSuite) setupTranslationServer(
 	return testServer
 }
 
-func setupServiceAccountKey(key string) {
-	*serviceAccountKey = key
+func (self *YcCommonTestSuite) setupServiceAccountKey(keyPath string) map[string]string {
+	*serviceAccountKeyPath = keyPath
+	data := self.ReadFile(keyPath)
+	parsedKey := map[string]string{}
+	self.Nil(json.Unmarshal([]byte(data), &parsedKey))
+	return parsedKey
 }

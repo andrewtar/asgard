@@ -37,29 +37,20 @@ func (self *IamTestSuite) TestGetIamToken() {
 }
 
 func (self *IamTestSuite) TestGetIamTokenReturnErrorIfNoToken() {
-	setupServiceAccountKey("")
+	*serviceAccountKeyPath = ""
 	_, err := GetIamToken()
 	self.Contains(err.Error(), "service account key cannot be empty")
 }
 
 func (self *IamTestSuite) TestGetIamTokenReturnErrorIfInvalidToken() {
-	setupServiceAccountKey("invalid_key")
+	*serviceAccountKeyPath = "testdata/test_key_invalid.json"
 	_, err := GetIamToken()
 	self.Contains(err.Error(), "failed to parse service key")
 }
 
 func (self *IamTestSuite) TestGetIamTokenReturnErrorIfInvalidPrivateKey() {
-	setupServiceAccountKey(string(test.ToJson(map[string]interface{}{
-		"id":                 "test_id",
-		"service_account_id": "test_service_account_id",
-		"created_at":         "2023-01-15T13:49:17.907541493Z",
-		"key_algorithm":      "RSA_2048",
-		"public_key":         "invalid_public_key",
-		"private_key":        "invalid_private_key",
-	})))
-
+	self.setupServiceAccountKey("testdata/test_key_invalid_private_key.json")
 	_, err := GetIamToken()
-
 	self.Contains(err.Error(), "failed to parse private key")
 }
 

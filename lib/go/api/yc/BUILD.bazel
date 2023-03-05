@@ -42,7 +42,11 @@ filegroup(
         # 2. openssl rsa -in private.pem -outform PEM -pubout -out public.pem
         # 3. cat private.pem | sed ':a;N;$!ba;s/\n/\\n/g'
         # 4. cat public.pem | sed ':a;N;$!ba;s/\n/\\n/g'
-        ["testdata/test_key.json"],
+        [
+            "testdata/test_key.json",
+            "testdata/test_key_invalid.json",
+            "testdata/test_key_invalid_private_key.json",
+        ],
     ),
     visibility = ["//visibility:private"],
 )
