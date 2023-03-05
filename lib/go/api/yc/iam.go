@@ -7,12 +7,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var serviceAccountKey = flag.String("yandex-cloud-service-account-key", "", "Yandex Cloud service account key")
+var serviceAccountKeyPath = flag.String(
+	"yandex-cloud-service-account-key-file-path",
+	"",
+	"Path to the file with Yandex Cloud service account key",
+)
 var tokenExchangeUrl = flag.String(
 	"yandex-cloud-token-url",
 	"https://iam.api.cloud.yandex.net/iam/v1/tokens",
@@ -46,11 +51,11 @@ func (self IAMToken) timeRefresh() bool {
 
 // Returns the IAMToken exchanged from the service account key.
 func GetIamToken() (IAMToken, error) {
-	if *serviceAccountKey == "" {
-		return IAMToken{}, fmt.Errorf("service account key cannot be empty")
+	if *serviceAccountKeyPath == "" {
+		return IAMToken{}, fmt.Errorf("path the service account key cannot be empty")
 	}
 
-	parsedKey, err := parseKey(*serviceAccountKey)
+	parsedKey, err := parseKey(*serviceAccountKeyPath)
 	if err != nil {
 		return IAMToken{}, fmt.Errorf("failed to parse service key: %w", err)
 	}
@@ -74,9 +79,13 @@ func GetIamToken() (IAMToken, error) {
 	}, nil
 }
 
-func parseKey(key string) (servicekey, error) {
+func parseKey(pathToKey string) (servicekey, error) {
+	key, err := os.ReadFile(pathToKey)
+	if err != nil {
+		return servicekey{}, fmt.Errorf("failed to read key: %w", err)
+	}
 	parsedKey := servicekey{}
-	err := json.Unmarshal([]byte(key), &parsedKey)
+	err = json.Unmarshal([]byte(key), &parsedKey)
 	return parsedKey, err
 }
 

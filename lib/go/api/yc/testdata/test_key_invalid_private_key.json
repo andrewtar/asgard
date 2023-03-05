@@ -1,0 +1,8 @@
+{
+   "id":                 "test_id",
+   "service_account_id": "test_service_account_id",
+   "created_at":         "2023-01-15T13:49:17.907541493Z",
+   "key_algorithm":      "RSA_2048",
+   "public_key":         "invalid_public_key",
+   "private_key":        "invalid_private_key"
+}
