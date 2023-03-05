@@ -3,12 +3,26 @@ load(
     "container_image",
     "container_push",
 )
-load("@io_bazel_rules_go//go:def.bzl", "go_binary")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "lib",
+    srcs = [
+        "command.go",
+    ],
+    deps = [
+        "//lib/go/api/bored",
+        "//lib/go/debug/metadata",
+    ],
+    importpath = "asgard/app/boredbot/cmd",
+    visibility = ["//visibility:private"],
+)
 
 go_binary(
     name = "cmd",
     srcs = ["main.go"],
     deps = [
+        ":lib",
         "//lib/go/api/bored",
         "//lib/go/api/telegram",
         "//lib/go/debug/service",
