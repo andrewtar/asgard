@@ -1,4 +1,4 @@
-package auth
+package yc
 
 import (
 	"bytes"
@@ -38,6 +38,10 @@ type jwtExchangeResponse struct {
 type IAMToken struct {
 	Token     string
 	ExpiresAt time.Time
+}
+
+func (self IAMToken) timeRefresh() bool {
+	return time.Now().After(self.ExpiresAt.Add(-30 * time.Minute))
 }
 
 // Returns the IAMToken exchanged from the service account key.
