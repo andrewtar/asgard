@@ -26,10 +26,6 @@ go_test(
         "//lib/go/debug/metadata",
         "@com_github_stretchr_testify//suite:go_default_library",        
     ],
-    x_defs = {
-        "Version": "0.9",
-        "BuildTime": "Sun, 11 Dec 2022 18:42:01 +0000",
-    },
     visibility = ["//visibility:private"],
 )
 
