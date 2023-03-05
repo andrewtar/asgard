@@ -23,12 +23,12 @@ var (
 
 type ClientTestSuite struct {
 	YcCommonTestSuite
-	client YCCloud
+	client *YCCloud
 }
 
 func (self *ClientTestSuite) SetupTest() {
 	self.YcCommonTestSuite.SetupTest()
-	self.client = YCCloud{}
+	self.client = NewClient()
 }
 
 func (self *ClientTestSuite) TestTranslateIfNoToken() {
@@ -49,7 +49,7 @@ func (self *ClientTestSuite) TestTranslateIfNoToken() {
 }
 
 func (self *ClientTestSuite) TestTranslateIfExpiredToken() {
-	self.client = YCCloud{
+	self.client = &YCCloud{
 		token: &IAMToken{
 			Token: testIamTokenValue,
 			ExpiresAt: testNowTime.
@@ -72,7 +72,7 @@ func (self *ClientTestSuite) TestTranslateIfExpiredToken() {
 }
 
 func (self *ClientTestSuite) TestTranslateReusePreviousToken() {
-	self.client = YCCloud{
+	self.client = &YCCloud{
 		token: &IAMToken{
 			Token: testIamTokenValue,
 			ExpiresAt: testIamTokenExpiresAt.

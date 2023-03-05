@@ -16,6 +16,10 @@ var translationUrl = flag.String(
 	"Yandex translation API url",
 )
 
+func NewClient() *YCCloud {
+	return &YCCloud{}
+}
+
 type YCCloud struct {
 	mutex sync.Mutex
 	token *IAMToken
