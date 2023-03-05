@@ -13,7 +13,7 @@ import (
 var translationUrl = flag.String(
 	"translation-api-url",
 	"https://translate.api.cloud.yandex.net/translate/v2/translate",
-	"Yandex Cloud token exchange url",
+	"Yandex translation API url",
 )
 
 type YCCloud struct {
